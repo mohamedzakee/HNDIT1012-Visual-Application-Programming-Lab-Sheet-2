@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HNDIT1032 Practical Lab 01: My First CNS App in Windows Forms</title>
+<style>
+:root{
+  --ink:#1b2430; --muted:#5b6675; --line:#d9dee5; --bg:#f6f7f9; --card:#fff;
+  --accent:#1f4e8c; --accent-soft:#e7eef8; --ok:#1d7a46; --ok-soft:#e5f4ec;
+  --warn:#9a5b00; --warn-soft:#fff3dd; --bad:#a32b2b; --bad-soft:#fbe9e9;
+  --code-bg:#14191f; --code-ink:#e6e9ee;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ink:#e6e9ee; --muted:#9aa5b3; --line:#2c3440; --bg:#0f1318; --card:#161b22;
+    --accent:#7fb0ff; --accent-soft:#1a2738; --ok:#5fd394; --ok-soft:#14261d;
+    --warn:#f0b354; --warn-soft:#2a2112; --bad:#ff8a8a; --bad-soft:#2a1616; --code-bg:#0b0e12; }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:16px/1.6 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+.wrap{max-width:980px;margin:0 auto;padding:0 20px 80px}
+header.top{background:var(--accent);color:#fff;padding:28px 0 22px}
+@media (prefers-color-scheme: dark){ header.top{background:#16304f} }
+header.top .wrap{padding-bottom:0}
+.kicker{font-size:13px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+h1{font-size:30px;line-height:1.25;margin:6px 0 8px}
+.sub{opacity:.92;margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:14px}
+.meta span{background:rgba(255,255,255,.14);padding:3px 10px;border-radius:20px}
+nav.toc{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+nav.toc .wrap{display:flex;gap:4px;overflow-x:auto;padding:8px 20px}
+nav.toc a{white-space:nowrap;color:var(--ink);text-decoration:none;font-size:14px;padding:5px 10px;border-radius:6px}
+nav.toc a:hover{background:var(--accent-soft);color:var(--accent)}
+h2{scroll-margin-top:56px;font-size:24px;margin:44px 0 6px;padding-top:8px;border-top:2px solid var(--line)}
+h2 .tag{display:inline-block;font-size:13px;font-weight:600;background:var(--accent-soft);color:var(--accent);padding:2px 10px;border-radius:20px;vertical-align:middle;margin-left:8px}
+h3{font-size:18px;margin:26px 0 6px}
+p{margin:8px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:14px 0}
+.studentbox{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 22px;margin-top:20px}
+.studentbox div{border-bottom:1px solid var(--line);padding:6px 0;color:var(--muted);font-size:14px}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14.5px;background:var(--card)}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft);color:var(--ink);font-weight:600}
+td code,p code,li code{font-family:Consolas,"Cascadia Mono",monospace;font-size:13.5px;background:var(--accent-soft);padding:1px 5px;border-radius:4px}
+td.blank{min-width:120px}
+.note,.warn,.tip,.check{border-left:4px solid;border-radius:6px;padding:10px 14px;margin:14px 0}
+.note{border-color:var(--accent);background:var(--accent-soft)}
+.warn{border-color:var(--warn);background:var(--warn-soft)}
+.tip{border-color:var(--ok);background:var(--ok-soft)}
+.check{border-color:var(--ok);background:var(--ok-soft)}
+.note b:first-child,.warn b:first-child,.tip b:first-child,.check b:first-child{display:block;margin-bottom:2px}
+ol.steps{padding-left:0;list-style:none;counter-reset:s}
+ol.steps>li{counter-increment:s;position:relative;padding:4px 0 10px 40px}
+ol.steps>li::before{content:counter(s);position:absolute;left:0;top:4px;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+@media (prefers-color-scheme: dark){ ol.steps>li::before{color:#0f1318} }
+.kbd{font-family:Consolas,monospace;font-size:13px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--card)}
+.codewrap{position:relative;margin:12px 0}
+.codewrap .cap{font-size:12.5px;color:var(--muted);margin-bottom:4px}
+pre{margin:0;background:var(--code-bg);color:var(--code-ink);border-radius:8px;padding:14px 16px;overflow-x:auto;font:13.5px/1.55 Consolas,"Cascadia Mono",Menlo,monospace}
+pre .k{color:#7fb6ff} pre .s{color:#e8c07d} pre .c{color:#7f8b99;font-style:italic} pre .n{color:#b9e3a1} pre .t{color:#5fd3c6}
+button.copy{position:absolute;right:8px;top:26px;font:12px "Segoe UI",sans-serif;background:#2b3440;color:#dde3ea;border:1px solid #3c4756;border-radius:5px;padding:3px 10px;cursor:pointer}
+button.copy:hover{background:#3a4553}
+.timeline{display:grid;grid-template-columns:110px 1fr;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}
+.timeline div{padding:9px 12px;border-bottom:1px solid var(--line);font-size:14.5px}
+.timeline div:nth-last-child(-n+2){border-bottom:0}
+.timeline .t{font-weight:600;color:var(--accent);background:var(--accent-soft)}
+.ipo{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:10px 0}
+.ipo div{flex:1 1 150px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--card);font-size:14px;text-align:center}
+.ipo div b{display:block;color:var(--accent)}
+.ipo .arrow{flex:0 0 auto;border:0;background:none;align-self:center;font-size:20px;color:var(--muted);padding:0}
+/* WinForms mock-ups */
+.win{border:1px solid #9aa4b1;border-radius:6px;background:#f0f0f0;color:#111;font:13px "Segoe UI",Tahoma,sans-serif;max-width:640px;margin:12px 0;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden}
+.win .bar{background:#fff;border-bottom:1px solid #ccc;padding:6px 10px;display:flex;justify-content:space-between}
+.win .bar span:last-child{letter-spacing:10px;color:#666}
+.win .tabs{display:flex;gap:2px;padding:6px 8px 0}
+.win .tabs span{border:1px solid #bbb;border-bottom:0;background:#e3e3e3;padding:3px 10px;border-radius:3px 3px 0 0}
+.win .tabs span.on{background:#fff;font-weight:600}
+.win .page{background:#fff;border-top:1px solid #bbb;margin:0 8px 8px;padding:12px;border:1px solid #bbb}
+.win .row{display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap}
+.win .lbl{min-width:110px}
+.win .tb{border:1px solid #7a7a7a;background:#fff;padding:2px 6px;min-width:150px;height:24px;font-family:Consolas,monospace;font-size:12px;display:inline-flex;align-items:center}
+.win .tb.ro{background:#f3f3f3}
+.win .btn{border:1px solid #adadad;background:#e1e1e1;padding:2px 14px;height:24px;display:inline-flex;align-items:center}
+.win .cb{border:1px solid #7a7a7a;background:#fff;padding:2px 22px 2px 6px;height:24px;position:relative;display:inline-flex;align-items:center}
+.win .cb::after{content:"▾";position:absolute;right:6px}
+.win .gb{border:1px solid #ccc;border-radius:3px;padding:14px 10px 8px;margin:12px 0 4px;position:relative}
+.win .gb>.gt{position:absolute;top:-9px;left:8px;background:#fff;padding:0 4px;color:#1f4e8c}
+.win .lst{border:1px solid #7a7a7a;background:#fff;height:78px;padding:3px 6px;font-family:Consolas,monospace;font-size:11.5px;overflow:hidden;width:100%}
+.win .grid{border:1px solid #7a7a7a;width:100%;border-collapse:collapse;font-size:12px;background:#fff;margin:0}
+.win .grid th{background:#f4f4f4;color:#111;border:1px solid #ddd;padding:2px 6px}
+.win .grid td{border:1px solid #e3e3e3;padding:2px 6px}
+.win .out{display:inline-flex;align-items:center;justify-content:center;width:150px;height:46px;background:#32cd32;font-size:20px;font-weight:700;border:1px solid #999}
+.win .chk::before{content:"☐ ";}
+.win .chk.on::before{content:"☑ ";}
+.win small{color:#666;font-size:11px}
+.pill{font-size:11px;font-family:Consolas,monospace;background:#fff6c7;border:1px dashed #c9a800;color:#5a4a00;padding:0 4px;border-radius:3px}
+.progress{display:flex;align-items:center;gap:10px;font-size:14px}
+.progress label{display:flex;gap:6px;align-items:center;cursor:pointer}
+ul.tick{list-style:none;padding-left:0}
+ul.tick li{padding:3px 0 3px 28px;position:relative}
+ul.tick li::before{content:"☐";position:absolute;left:4px;color:var(--accent);font-size:17px;line-height:1.4}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:720px){ .two{grid-template-columns:1fr} h1{font-size:24px} .timeline{grid-template-columns:86px 1fr} }
+footer{margin-top:50px;color:var(--muted);font-size:13px;text-align:center}
+@media print{
+  nav.toc,button.copy,.progress{display:none!important}
+  body{background:#fff;color:#000;font-size:12.5px}
+  header.top{background:#fff;color:#000;border-bottom:2px solid #000}
+  .meta span{background:#eee}
+  pre{background:#f5f5f5;color:#000;border:1px solid #ccc;white-space:pre-wrap}
+  pre .k,pre .s,pre .c,pre .n,pre .t{color:#000}
+  h2{page-break-before:auto;break-after:avoid}
+  .codewrap,.win,table{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="kicker">SLIATE · ATI Sammanthurai · HNDIT Semester 1</div>
+    <h1>HNDIT1032 Computer and Network Systems<br>Practical Lab 01: My First CNS App in Windows Forms</h1>
+    <p class="sub">Seven short exercises, one for each topic from Weeks 01–03. Each one needs only a few controls and a few lines of code.</p>
+    <div class="meta">
+      <span>⏱ Duration: 2 hours</span>
+      <span>💻 C# · Windows Forms App (.NET Framework)</span>
+      <span>🛠 Visual Studio 2022</span>
+      <span>👤 Individual work</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#overview">Overview</a>
+  <a href="#setup">Setup</a>
+  <a href="#ex1">Ex 1 Data</a>
+  <a href="#ex2">Ex 2 Generations</a>
+  <a href="#ex3">Ex 3 Units</a>
+  <a href="#ex4">Ex 4 Numbers</a>
+  <a href="#ex5">Ex 5 ASCII</a>
+  <a href="#ex6">Ex 6 BCD</a>
+  <a href="#ex7">Ex 7 Gates</a>
+  <a href="#help">Help</a>
+  <a href="#submit">Submit</a>
+  <a href="#full-code">Full code</a>
+</div></nav>
+
+<main class="wrap">
+
+<div class="studentbox">
+  <div>Name: </div><div>Registration No: </div><div>Date: </div><div>Lab PC No: </div>
+</div>
+
+<h2 id="overview">Overview</h2>
+<p>You will build <b>one</b> app called <b>CNS Lab</b>. It has <b>7 tabs</b>, one for each exercise. Every exercise uses the same three steps:</p>
+<div class="ipo">
+  <div><b>① Design</b>Drag controls from the Toolbox and set their <code>(Name)</code> and <code>Text</code></div>
+  <div class="arrow">→</div>
+  <div><b>② Code</b>Double-click the button and type the code given</div>
+  <div class="arrow">→</div>
+  <div><b>③ Test</b>Run with <span class="kbd">F5</span>, try the test inputs and fill in the table</div>
+</div>
+
+<h3>Exercises and time plan</h3>
+<table>
+  <tr><th>Time</th><th>Exercise</th><th>Lecture topic</th></tr>
+  <tr><td>0–10 min</td><td><a href="#setup">Setup</a>: new project and 7 tabs</td><td>–</td></tr>
+  <tr><td>10–25</td><td><a href="#ex1">Ex 1</a>: Marks → total, average, grade</td><td>Week 01 · Data vs information</td></tr>
+  <tr><td>25–35</td><td><a href="#ex2">Ex 2</a>: Generations of computers</td><td>Week 01 · Computer generations</td></tr>
+  <tr><td>35–45</td><td><a href="#ex3">Ex 3</a>: Storage unit converter</td><td>Week 02 · Bit, nibble, byte, KB, MB, GB</td></tr>
+  <tr><td>45–60</td><td><a href="#ex4">Ex 4</a>: Number system converter</td><td>Week 02 · Binary, octal, decimal, hex</td></tr>
+  <tr><td>60–75</td><td><a href="#ex5">Ex 5</a>: Character ↔ ASCII code</td><td>Week 02 · ASCII and Unicode</td></tr>
+  <tr><td>75–85</td><td><a href="#ex6">Ex 6</a>: Decimal → BCD</td><td>Week 02 · BCD</td></tr>
+  <tr><td>85–110</td><td><a href="#ex7">Ex 7</a>: Logic gates and De Morgan</td><td>Week 03 · Gates and Boolean algebra</td></tr>
+  <tr><td>110–120</td><td>Show your lecturer and <a href="#submit">submit</a></td><td>–</td></tr>
+</table>
+
+<div class="tip"><b>Do it by hand first ✍</b>
+In Exercises 3–7, work out the answer <b>on paper first</b> (as in the tutorials). Then run your app and check that it gives the same answer. If they’re different, find out which one is wrong.</div>
+
+<!-- ============ SETUP ============ -->
+<h2 id="setup">Setup <span class="tag">10 min</span></h2>
+<ol class="steps">
+  <li>Open <b>Visual Studio 2022</b> → <b>Create a new project</b>.</li>
+  <li>Search <code>Windows Forms</code> and choose <b>Windows Forms App (.NET Framework)</b> with the <b>C#</b> tag → <b>Next</b>.</li>
+  <li>Project name: <code>CNSLab</code> · Framework: <b>.NET Framework 4.8</b> (4.7.2 is also fine) → <b>Create</b>.</li>
+  <li>Click on the form. In the <b>Properties</b> window (<span class="kbd">F4</span>) set:
+    <code>Text</code> = <code>CNS Lab – </code><i>your Reg No</i> · <code>Size</code> = <code>650, 480</code> · <code>Font</code> = <code>Segoe UI, 10pt</code>.</li>
+  <li>From the <b>Toolbox</b> (<b>Containers</b> group), drag a <b>TabControl</b> onto the form. Set <code>Dock</code> = <code>Fill</code>.</li>
+  <li>Select the TabControl → Properties → <code>TabPages</code> → click <b>…</b>. Click <b>Add</b> until there are <b>7</b> pages, and set each page’s <code>Text</code>:
+    <br><code>Ex1 Data</code> · <code>Ex2 Generations</code> · <code>Ex3 Units</code> · <code>Ex4 Numbers</code> · <code>Ex5 ASCII</code> · <code>Ex6 BCD</code> · <code>Ex7 Gates</code></li>
+  <li>Press <span class="kbd">F5</span>. You should see a window with 7 tabs. Close it.</li>
+</ol>
+<div class="warn"><b>Two important rules</b>
+① Choose the template with <b>(.NET Framework)</b> in its name, not the plain “Windows Forms App”.<br>
+② Always set a control’s <code>(Name)</code> <b>before</b> you double-click it. The code uses these exact names. Capital letters matter.</div>
+
+<!-- ============ EX 1 ============ -->
+<h2 id="ex1">Exercise 1 · Data → Information <span class="tag">Week 01 · 15 min</span></h2>
+<p>The marks a student types in are <b>data</b> (raw facts). The total, average and grade the app calculates are <b>information</b>.</p>
+<div class="win">
+  <div class="bar"><span>CNS Lab</span><span>–□✕</span></div>
+  <div class="tabs"><span class="on">Ex1 Data</span><span>Ex2 Generations</span><span>…</span></div>
+  <div class="page">
+    <div class="row"><span class="lbl">Mark 1:</span><span class="tb">80 <span class="pill">txtM1</span></span></div>
+    <div class="row"><span class="lbl">Mark 2:</span><span class="tb">70 <span class="pill">txtM2</span></span></div>
+    <div class="row"><span class="lbl">Mark 3 … 5:</span><span class="tb">… <span class="pill">txtM3, txtM4, txtM5</span></span></div>
+    <div class="row"><span class="btn">Process <span class="pill">btnProcess</span></span></div>
+    <div class="row">Total: 375 <span class="pill">lblTotal</span></div>
+    <div class="row">Average: 75.00 <span class="pill">lblAverage</span></div>
+    <div class="row">Grade: A <span class="pill">lblGrade</span></div>
+  </div>
+</div>
+<h3>① Design</h3>
+<table>
+  <tr><th>Control</th><th>(Name)</th><th>Text</th></tr>
+  <tr><td>Label ×5</td><td>(leave default)</td><td><code>Mark 1:</code> … <code>Mark 5:</code></td></tr>
+  <tr><td>TextBox ×5</td><td><code>txtM1</code>, <code>txtM2</code>, <code>txtM3</code>, <code>txtM4</code>, <code>txtM5</code></td><td>(empty)</td></tr>
+  <tr><td>Button</td><td><code>btnProcess</code></td><td><code>Process</code></td></tr>
+  <tr><td>Label ×3</td><td><code>lblTotal</code>, <code>lblAverage</code>, <code>lblGrade</code></td><td><code>Total:</code>, <code>Average:</code>, <code>Grade:</code></td></tr>
+</table>
+<h3>② Code: double-click <b>btnProcess</b></h3>
+<div class="codewrap"><div class="cap">Form1.cs</div><pre><code class="cs">private void btnProcess_Click(object sender, EventArgs e)
+{
+    // DATA: raw marks typed by the user
+    int m1 = int.Parse(txtM1.Text);
+    int m2 = int.Parse(txtM2.Text);
+    int m3 = int.Parse(txtM3.Text);
+    int m4 = int.Parse(txtM4.Text);
+    int m5 = int.Parse(txtM5.Text);
+
+    // PROCESSING
+    int total = m1 + m2 + m3 + m4 + m5;
+    double average = total / 5.0;
+
+    string grade;
+    if (average &gt;= 75) grade = "A";
+    else if (average &gt;= 65) grade = "B";
+    else if (average &gt;= 50) grade = "C";
+    else if (average &gt;= 35) grade = "S";
+    else grade = "F";
+
+    // INFORMATION: meaningful output
+    lblTotal.Text = "Total: " + total;
+    lblAverage.Text = "Average: " + average.ToString("0.00");
+    lblGrade.Text = "Grade: " + grade;
+}</code></pre></div>
+<h3>③ Test</h3>
+<table>
+  <tr><th>Marks entered</th><th>Expected</th><th>Your app shows</th></tr>
+  <tr><td>80, 70, 90, 60, 75</td><td>Total 375 · Average 75.00 · Grade A</td><td class="blank"></td></tr>
+  <tr><td>40, 50, 30, 45, 35</td><td>Total 200 · Average 40.00 · Grade S</td><td class="blank"></td></tr>
+  <tr><td>Your own 5 marks</td><td>(work it out first)</td><td class="blank"></td></tr>
+</table>
+<p><b>Write:</b> In this exercise, the <b>data</b> is ______________________, and the <b>information</b> is ______________________.</p>
+<div class="progress"><label><input type="checkbox" data-k="1"> Exercise 1 done</label></div>
+
+<!-- ============ EX 2 ============ -->
+<h2 id="ex2">Exercise 2 · Generations of Computers <span class="tag">Week 01 · 10 min</span></h2>
+<p>When the user picks a generation, the app shows its main technology, period and examples.</p>
+<div class="win">
+  <div class="bar"><span>CNS Lab</span><span>–□✕</span></div>
+  <div class="tabs"><span>Ex1 Data</span><span class="on">Ex2 Generations</span><span>…</span></div>
+  <div class="page">
+    <div class="row"><span class="lbl">Generation:</span><span class="cb">2nd Generation <span class="pill">cmbGen</span></span></div>
+    <div class="row">Technology: Transistors <span class="pill">lblTech</span></div>
+    <div class="row">Period: 1956 – 1963 <span class="pill">lblPeriod</span></div>
+    <div class="row">Examples: IBM 1401, IBM 7094 <span class="pill">lblExample</span></div>
+  </div>
+</div>
+<h3>① Design</h3>
+<table>
+  <tr><th>Control</th><th>(Name)</th><th>Properties</th></tr>
+  <tr><td>ComboBox</td><td><code>cmbGen</code></td><td>DropDownStyle = <code>DropDownList</code>. Click <b>Items</b> → <b>…</b> and type one per line:<br><code>1st Generation</code>, <code>2nd Generation</code>, <code>3rd Generation</code>, <code>4th Generation</code>, <code>5th Generation</code></td></tr>
+  <tr><td>Label ×3</td><td><code>lblTech</code>, <code>lblPeriod</code>, <code>lblExample</code></td><td>Text = <code>Technology:</code>, <code>Period:</code>, <code>Examples:</code></td></tr>
+</table>
+<h3>② Code: double-click <b>cmbGen</b></h3>
+<p>This creates the <code>SelectedIndexChanged</code> event. It runs every time the user picks an item. <code>SelectedIndex</code> is 0 for the first item, 1 for the second, and so on.</p>
+<div class="codewrap"><div class="cap">Form1.cs</div><pre><code class="cs">private void cmbGen_SelectedIndexChanged(object sender, EventArgs e)
+{
+    if (cmbGen.SelectedIndex == 0)
+    {
+        lblTech.Text = "Technology: Vacuum tubes";
+        lblPeriod.Text = "Period: 1940 – 1956";
+        lblExample.Text = "Examples: ENIAC, UNIVAC";
+    }
+    else if (cmbGen.SelectedIndex == 1)
+    {
+        lblTech.Text = "Technology: Transistors";
+        lblPeriod.Text = "Period: 1956 – 1963";
+        lblExample.Text = "Examples: IBM 1401, IBM 7094";
+    }
+    else if (cmbGen.SelectedIndex == 2)
+    {
+        lblTech.Text = "Technology: Integrated Circuits (IC)";
+        lblPeriod.Text = "Period: 1964 – 1971";
+        lblExample.Text = "Examples: IBM System/360";
+    }
+    else if (cmbGen.SelectedIndex == 3)
+    {
+        lblTech.Text = "Technology: Microprocessors (VLSI)";
+        lblPeriod.Text = "Period: 1971 – present";
+        lblExample.Text = "Examples: IBM PC, Apple Macintosh";
+    }
+    else if (cmbGen.SelectedIndex == 4)
+    {
+        lblTech.Text = "Technology: Artificial Intelligence (ULSI)";
+        lblPeriod.Text = "Period: Present and beyond";
+        lblExample.Text = "Examples: AI assistants, robots";
+    }
+}</code></pre></div>
+<div class="note"><b>Your turn</b>
+Add a fourth label <code>lblFeature</code> that shows one main feature of each generation, for example “Very large, lots of heat” for the 1st generation. Use your Week 01 notes.</div>
+<h3>③ Test</h3>
+<p>Pick each of the 5 generations. Every label must change. ☐ 1st ☐ 2nd ☐ 3rd ☐ 4th ☐ 5th</p>
+<div class="progress"><label><input type="checkbox" data-k="2"> Exercise 2 done</label></div>
+
+<!-- ============ EX 3 ============ -->
+<h2 id="ex3">Exercise 3 · Storage Unit Converter <span class="tag">Week 02 · 10 min</span></h2>
+<p>Type a number of <b>bytes</b>. The app shows the same amount in bits, nibbles, KB, MB and GB (1 byte = 8 bits = 2 nibbles; 1 KB = 1024 bytes).</p>
+<h3>① Design</h3>
+<table>
+  <tr><th>Control</th><th>(Name)</th><th>Text</th></tr>
+  <tr><td>Label</td><td>(default)</td><td><code>Bytes:</code></td></tr>
+  <tr><td>TextBox</td><td><code>txtBytes</code></td><td>(empty)</td></tr>
+  <tr><td>Button</td><td><code>btnUnits</code></td><td><code>Convert</code></td></tr>
+  <tr><td>Label ×5</td><td><code>lblBits</code>, <code>lblNibbles</code>, <code>lblKB</code>, <code>lblMB</code>, <code>lblGB</code></td><td><code>Bits:</code>, <code>Nibbles:</code>, <code>KB:</code>, <code>MB:</code>, <code>GB:</code></td></tr>
+</table>
+<h3>② Code: double-click <b>btnUnits</b></h3>
+<div class="codewrap"><div class="cap">Form1.cs</div><pre><code class="cs">private void btnUnits_Click(object sender, EventArgs e)
+{
+    double bytes = double.Parse(txtBytes.Text);
+
+    lblBits.Text    = "Bits: "    + (bytes * 8);
+    lblNibbles.Text = "Nibbles: " + (bytes * 2);
+    lblKB.Text = "KB: " + (bytes / 1024).ToString("0.########");
+    lblMB.Text = "MB: " + (bytes / (1024 * 1024)).ToString("0.########");
+    lblGB.Text = "GB: " + (bytes / (1024 * 1024 * 1024)).ToString("0.########");
+}</code></pre></div>
+<h3>③ Test (work out rows 1 and 2 by hand first)</h3>
+<table>
+  <tr><th>Bytes</th><th>Expected</th><th>Your app shows</th></tr>
+  <tr><td>1</td><td>Bits 8 · Nibbles 2 · KB 0.00097656</td><td class="blank"></td></tr>
+  <tr><td>2048</td><td>Bits 16384 · Nibbles 4096 · KB 2 · MB 0.00195313</td><td class="blank"></td></tr>
+  <tr><td>1048576</td><td>Bits 8388608 · KB 1024 · MB 1 · GB 0.00097656</td><td class="blank"></td></tr>
+</table>
+<div class="progress"><label><input type="checkbox" data-k="3"> Exercise 3 done</label></div>
+
+<!-- ============ EX 4 ============ -->
+<h2 id="ex4">Exercise 4 · Number System Converter <span class="tag">Week 02 · 15 min</span></h2>
+<p>Part A converts decimal to binary, octal and hexadecimal. Part B converts binary, octal or hex back to decimal. C# does the conversion with <code>Convert.ToString(number, base)</code> and <code>Convert.ToInt32(text, base)</code>.</p>
+<div class="win">
+  <div class="bar"><span>CNS Lab</span><span>–□✕</span></div>
+  <div class="tabs"><span>…</span><span class="on">Ex4 Numbers</span><span>…</span></div>
+  <div class="page">
+    <div class="row"><span class="lbl">Decimal:</span><span class="tb">156 <span class="pill">txtDecimal</span></span><span class="btn">Convert <span class="pill">btnConvert</span></span></div>
+    <div class="row">Binary: 10011100 <span class="pill">lblBinary</span></div>
+    <div class="row">Octal: 234 <span class="pill">lblOctal</span></div>
+    <div class="row">Hexadecimal: 9C <span class="pill">lblHex</span></div>
+    <div class="row" style="margin-top:14px"><span class="lbl">Value:</span><span class="tb">2F <span class="pill">txtValue</span></span><span class="cb">16 <span class="pill">cmbBase</span></span><span class="btn">To Decimal <span class="pill">btnToDecimal</span></span></div>
+    <div class="row">Decimal: 47 <span class="pill">lblDecimal</span></div>
+  </div>
+</div>
+<h3>① Design</h3>
+<table>
+  <tr><th>Control</th><th>(Name)</th><th>Text / properties</th></tr>
+  <tr><td>Label</td><td>(default)</td><td><code>Decimal:</code></td></tr>
+  <tr><td>TextBox</td><td><code>txtDecimal</code></td><td>(empty)</td></tr>
+  <tr><td>Button</td><td><code>btnConvert</code></td><td><code>Convert</code></td></tr>
+  <tr><td>Label ×3</td><td><code>lblBinary</code>, <code>lblOctal</code>, <code>lblHex</code></td><td><code>Binary:</code>, <code>Octal:</code>, <code>Hexadecimal:</code></td></tr>
+  <tr><td>Label</td><td>(default)</td><td><code>Value:</code></td></tr>
+  <tr><td>TextBox</td><td><code>txtValue</code></td><td>(empty)</td></tr>
+  <tr><td>ComboBox</td><td><code>cmbBase</code></td><td>DropDownStyle = <code>DropDownList</code>; Items: <code>2</code>, <code>8</code>, <code>16</code> (one per line)</td></tr>
+  <tr><td>Button</td><td><code>btnToDecimal</code></td><td><code>To Decimal</code></td></tr>
+  <tr><td>Label</td><td><code>lblDecimal</code></td><td><code>Decimal:</code></td></tr>
+</table>
+<h3>② Code: double-click <b>btnConvert</b>, then <b>btnToDecimal</b></h3>
+<div class="codewrap"><div class="cap">Form1.cs</div><pre><code class="cs">private void btnConvert_Click(object sender, EventArgs e)
+{
+    int number = int.Parse(txtDecimal.Text);
+
+    lblBinary.Text = "Binary: " + Convert.ToString(number, 2);
+    lblOctal.Text  = "Octal: "  + Convert.ToString(number, 8);
+    lblHex.Text    = "Hexadecimal: " + Convert.ToString(number, 16).ToUpper();
+}
+
+private void btnToDecimal_Click(object sender, EventArgs e)
+{
+    int fromBase = int.Parse(cmbBase.Text);               // 2, 8 or 16
+    int value = Convert.ToInt32(txtValue.Text, fromBase);
+
+    lblDecimal.Text = "Decimal: " + value;
+}</code></pre></div>
+<h3>③ Test: by hand first, then with the app</h3>
+<table>
+  <tr><th>Input</th><th>My hand working (answer)</th><th>Expected</th><th>App ✔/✘</th></tr>
+  <tr><td>Decimal 13</td><td class="blank"></td><td>Bin 1101 · Oct 15 · Hex D</td><td class="blank"></td></tr>
+  <tr><td>Decimal 156</td><td class="blank"></td><td>Bin 10011100 · Oct 234 · Hex 9C</td><td class="blank"></td></tr>
+  <tr><td>Decimal 255</td><td class="blank"></td><td>Bin 11111111 · Oct 377 · Hex FF</td><td class="blank"></td></tr>
+  <tr><td>1011, base 2</td><td class="blank"></td><td>11</td><td class="blank"></td></tr>
+  <tr><td>755, base 8</td><td class="blank"></td><td>493</td><td class="blank"></td></tr>
+  <tr><td>2F, base 16</td><td class="blank"></td><td>47</td><td class="blank"></td></tr>
+</table>
+<div class="note"><b>Try this</b>
+Type <code>129</code> with base <code>8</code> and click To Decimal. The app stops with an error. Why is 129 not a valid octal number? ______________________</div>
+<div class="progress"><label><input type="checkbox" data-k="4"> Exercise 4 done</label></div>
+
+<!-- ============ EX 5 ============ -->
+<h2 id="ex5">Exercise 5 · Character ↔ ASCII Code <span class="tag">Week 02 · 15 min</span></h2>
+<p>Every character is stored as a number. In C#, you can turn a <code>char</code> into an <code>int</code> to see its code, and turn an <code>int</code> back into a <code>char</code>.</p>
+<h3>① Design</h3>
+<table>
+  <tr><th>Control</th><th>(Name)</th><th>Text / properties</th></tr>
+  <tr><td>Label</td><td>(default)</td><td><code>Character:</code></td></tr>
+  <tr><td>TextBox</td><td><code>txtChar</code></td><td>MaxLength = <code>1</code></td></tr>
+  <tr><td>Button</td><td><code>btnToCode</code></td><td><code>Get Code</code></td></tr>
+  <tr><td>Label ×3</td><td><code>lblCodeDec</code>, <code>lblCodeBin</code>, <code>lblCodeHex</code></td><td><code>Decimal:</code>, <code>Binary:</code>, <code>Hex:</code></td></tr>
+  <tr><td>Label</td><td>(default)</td><td><code>Code:</code></td></tr>
+  <tr><td>TextBox</td><td><code>txtCode</code></td><td>(empty)</td></tr>
+  <tr><td>Button</td><td><code>btnToChar</code></td><td><code>Get Character</code></td></tr>
+  <tr><td>Label</td><td><code>lblChar</code></td><td><code>Character:</code> · Font size <code>20</code></td></tr>
+</table>
+<h3>② Code: double-click <b>btnToCode</b>, then <b>btnToChar</b></h3>
+<div class="codewrap"><div class="cap">Form1.cs</div><pre><code class="cs">private void btnToCode_Click(object sender, EventArgs e)
+{
+    char c = txtChar.Text[0];      // first (only) character typed
+    int code = c;                  // the character's code number
+
+    lblCodeDec.Text = "Decimal: " + code;
+    lblCodeBin.Text = "Binary: "  + Convert.ToString(code, 2).PadLeft(8, '0');
+    lblCodeHex.Text = "Hex: "     + code.ToString("X");
+}
+
+private void btnToChar_Click(object sender, EventArgs e)
+{
+    int code = int.Parse(txtCode.Text);
+    lblChar.Text = "Character: " + (char)code;
+}</code></pre></div>
+<h3>③ Test</h3>
+<table>
+  <tr><th>Input</th><th>Expected</th><th>Your app shows</th></tr>
+  <tr><td>Character <code>A</code></td><td>65 · 01000001 · 41</td><td class="blank"></td></tr>
+  <tr><td>Character <code>a</code></td><td>97 · 01100001 · 61</td><td class="blank"></td></tr>
+  <tr><td>Character <code>0</code> (zero)</td><td>48 · 00110000 · 30</td><td class="blank"></td></tr>
+  <tr><td>Character (space)</td><td>32 · 00100000 · 20</td><td class="blank"></td></tr>
+  <tr><td>Code <code>66</code></td><td>B</td><td class="blank"></td></tr>
+  <tr><td>Code <code>122</code></td><td>z</td><td class="blank"></td></tr>
+  <tr><td>Code <code>2949</code></td><td>அ (a Tamil letter: this is a <b>Unicode</b> code, not ASCII)</td><td class="blank"></td></tr>
+</table>
+<p><b>Write:</b> The difference between the codes for a capital letter and its small letter is ______. Codes above 127 are not ASCII. They come from ______________.</p>
+<div class="progress"><label><input type="checkbox" data-k="5"> Exercise 5 done</label></div>
+
+<!-- ============ EX 6 ============ -->
+<h2 id="ex6">Exercise 6 · Decimal → BCD <span class="tag">Week 02 · 10 min</span></h2>
+<p>BCD changes <b>each decimal digit</b> into 4 bits. The app also shows the pure binary value so you can compare the two.</p>
+<h3>① Design</h3>
+<table>
+  <tr><th>Control</th><th>(Name)</th><th>Text</th></tr>
+  <tr><td>Label</td><td>(default)</td><td><code>Decimal:</code></td></tr>
+  <tr><td>TextBox</td><td><code>txtBcd</code></td><td>(empty)</td></tr>
+  <tr><td>Button</td><td><code>btnBcd</code></td><td><code>To BCD</code></td></tr>
+  <tr><td>Label ×2</td><td><code>lblBcd</code>, <code>lblPureBinary</code></td><td><code>BCD:</code>, <code>Pure binary:</code></td></tr>
+</table>
+<h3>② Code: double-click <b>btnBcd</b></h3>
+<div class="codewrap"><div class="cap">Form1.cs</div><pre><code class="cs">private void btnBcd_Click(object sender, EventArgs e)
+{
+    string bcd = "";
+
+    // take one digit at a time
+    foreach (char c in txtBcd.Text)
+    {
+        int digit = c - '0';    // '5' becomes 5
+        bcd = bcd + Convert.ToString(digit, 2).PadLeft(4, '0') + " ";
+    }
+
+    lblBcd.Text = "BCD: " + bcd;
+    lblPureBinary.Text = "Pure binary: " + Convert.ToString(int.Parse(txtBcd.Text), 2);
+}</code></pre></div>
+<h3>③ Test: by hand first</h3>
+<table>
+  <tr><th>Decimal</th><th>My BCD (by hand)</th><th>Expected BCD</th><th>Expected pure binary</th><th>App ✔/✘</th></tr>
+  <tr><td>7</td><td class="blank"></td><td>0111</td><td>111</td><td class="blank"></td></tr>
+  <tr><td>59</td><td class="blank"></td><td>0101 1001</td><td>111011</td><td class="blank"></td></tr>
+  <tr><td>2026</td><td class="blank"></td><td>0010 0000 0010 0110</td><td>11111101010</td><td class="blank"></td></tr>
+</table>
+<p><b>Write:</b> Which one uses more bits for 2026, BCD or pure binary? ______</p>
+<div class="progress"><label><input type="checkbox" data-k="6"> Exercise 6 done</label></div>
+
+<!-- ============ EX 7 ============ -->
+<h2 id="ex7">Exercise 7 · Logic Gates and De Morgan’s Theorem <span class="tag">Week 03 · 25 min</span></h2>
+<p>Two check boxes are the inputs A and B (ticked = 1). One click shows the output of <b>all 7 gates</b> and checks <b>De Morgan’s theorem</b>.</p>
+<div class="win">
+  <div class="bar"><span>CNS Lab</span><span>–□✕</span></div>
+  <div class="tabs"><span>…</span><span class="on">Ex7 Gates</span></div>
+  <div class="page">
+    <div class="row"><span class="chk on">A</span> <span class="pill">chkA</span> &nbsp; <span class="chk">B</span> <span class="pill">chkB</span> &nbsp; <span class="btn">Show Outputs <span class="pill">btnGates</span></span></div>
+    <div class="row">AND (A · B) = 0 <span class="pill">lblAnd</span></div>
+    <div class="row">OR (A + B) = 1 <span class="pill">lblOr</span></div>
+    <div class="row">NOT (A') = 0 <span class="pill">lblNot</span></div>
+    <div class="row">NAND, NOR, XOR, XNOR … <span class="pill">lblNand, lblNor, lblXor, lblXnor</span></div>
+    <div class="row">(A · B)' = 1 &nbsp; A' + B' = 1 <span class="pill">lblDeMorgan1</span></div>
+    <div class="row">(A + B)' = 0 &nbsp; A' · B' = 0 <span class="pill">lblDeMorgan2</span></div>
+  </div>
+</div>
+<h3>① Design</h3>
+<table>
+  <tr><th>Control</th><th>(Name)</th><th>Text</th></tr>
+  <tr><td>CheckBox ×2</td><td><code>chkA</code>, <code>chkB</code></td><td><code>A</code>, <code>B</code></td></tr>
+  <tr><td>Button</td><td><code>btnGates</code></td><td><code>Show Outputs</code></td></tr>
+  <tr><td>Label ×7</td><td><code>lblAnd</code>, <code>lblOr</code>, <code>lblNot</code>, <code>lblNand</code>, <code>lblNor</code>, <code>lblXor</code>, <code>lblXnor</code></td><td><code>AND</code>, <code>OR</code>, … (any text, as the code replaces it)</td></tr>
+  <tr><td>Label ×2</td><td><code>lblDeMorgan1</code>, <code>lblDeMorgan2</code></td><td><code>De Morgan 1</code>, <code>De Morgan 2</code></td></tr>
+</table>
+<div class="note"><b>C# logic operators</b>
+<code>&amp;&amp;</code> = AND · <code>||</code> = OR · <code>!</code> = NOT · <code>^</code> = XOR.
+<code>Convert.ToInt32(true)</code> gives <b>1</b> and <code>Convert.ToInt32(false)</code> gives <b>0</b>.</div>
+<h3>② Code: double-click <b>btnGates</b></h3>
+<div class="codewrap"><div class="cap">Form1.cs</div><pre><code class="cs">private void btnGates_Click(object sender, EventArgs e)
+{
+    bool a = chkA.Checked;    // ticked = true = 1
+    bool b = chkB.Checked;
+
+    // The 7 logic gates
+    lblAnd.Text  = "AND   (A · B)    = " + Convert.ToInt32(a &amp;&amp; b);
+    lblOr.Text   = "OR    (A + B)    = " + Convert.ToInt32(a || b);
+    lblNot.Text  = "NOT   (A')       = " + Convert.ToInt32(!a);
+    lblNand.Text = "NAND  ((A · B)') = " + Convert.ToInt32(!(a &amp;&amp; b));
+    lblNor.Text  = "NOR   ((A + B)') = " + Convert.ToInt32(!(a || b));
+    lblXor.Text  = "XOR   (A ⊕ B)    = " + Convert.ToInt32(a ^ b);
+    lblXnor.Text = "XNOR  ((A ⊕ B)') = " + Convert.ToInt32(!(a ^ b));
+
+    // De Morgan's theorem: left side must always equal right side
+    lblDeMorgan1.Text = "(A · B)' = " + Convert.ToInt32(!(a &amp;&amp; b))
+                      + "     A' + B' = " + Convert.ToInt32(!a || !b);
+    lblDeMorgan2.Text = "(A + B)' = " + Convert.ToInt32(!(a || b))
+                      + "     A' · B' = " + Convert.ToInt32(!a &amp;&amp; !b);
+}</code></pre></div>
+<h3>③ Test: build the truth table with your app</h3>
+<p>Try all 4 combinations of A and B. Click <b>Show Outputs</b> each time and copy the results here. Then compare with your Tutorial 03 answers.</p>
+<table>
+  <tr><th>A</th><th>B</th><th>AND</th><th>OR</th><th>NOT A</th><th>NAND</th><th>NOR</th><th>XOR</th><th>XNOR</th></tr>
+  <tr><td>0</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>0</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>1</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+<table>
+  <tr><th>A</th><th>B</th><th>(A · B)'</th><th>A' + B'</th><th>Equal?</th><th>(A + B)'</th><th>A' · B'</th><th>Equal?</th></tr>
+  <tr><td>0</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>0</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>1</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+<p><b>Write:</b> De Morgan’s theorem is true because ___________________________________________.</p>
+<div class="card">
+<b>★ Bonus: prove a Boolean law</b><br>
+Add a label <code>lblLaw</code> and this line at the end of <code>btnGates_Click</code>. Test all 4 inputs. Is the <b>absorption law</b> A + A·B = A always true?
+<div class="codewrap"><pre><code class="cs">lblLaw.Text = "A + A·B = " + Convert.ToInt32(a || (a &amp;&amp; b)) + "     A = " + Convert.ToInt32(a);</code></pre></div>
+</div>
+<div class="progress"><label><input type="checkbox" data-k="7"> Exercise 7 done</label></div>
+
+<!-- ============ HELP ============ -->
+<h2 id="help">If something goes wrong</h2>
+<table>
+  <tr><th>Problem</th><th>What to do</th></tr>
+  <tr><td>App stops with <b>FormatException</b> (“Input string was not in a correct format”)</td><td>You typed letters, nothing, or a wrong digit. Stop the app (<span class="kbd">Shift</span>+<span class="kbd">F5</span>) and enter a valid number.</td></tr>
+  <tr><td>Red line: <i>The name 'lblTotal' does not exist</i></td><td>The control’s <code>(Name)</code> is different. Select the control and correct its name in Properties. Capital letters matter.</td></tr>
+  <tr><td>Clicking the button does nothing</td><td>The code isn’t connected. Select the button → Properties → ⚡ <b>Events</b> → <b>Click</b> → choose your method.</td></tr>
+  <tr><td>Designer error: <i>does not contain a definition for 'button1_Click'</i></td><td>You renamed a control after double-clicking it. Double-click the error, and in <code>Form1.Designer.cs</code> delete only that one <code>button1_Click</code> line.</td></tr>
+  <tr><td>Ex 5 stops with <b>IndexOutOfRangeException</b></td><td>The character box is empty. Type one character first.</td></tr>
+  <tr><td>Hex shows lowercase (9c)</td><td>Add <code>.ToUpper()</code> to the end.</td></tr>
+</table>
+
+<!-- ============ SUBMIT ============ -->
+<h2 id="submit">Submission</h2>
+<ul class="tick">
+  <li>Show your running app to the lecturer: one test from each exercise.</li>
+  <li>Hand in this sheet with all the tables and “Write” answers completed.</li>
+  <li>Zip the project folder as <code>RegNo_CNSLab.zip</code> (delete the <code>bin</code> and <code>obj</code> folders first) and upload it.</li>
+</ul>
+<table>
+  <tr><th>Marks</th><th>Ex 1</th><th>Ex 2</th><th>Ex 3</th><th>Ex 4</th><th>Ex 5</th><th>Ex 6</th><th>Ex 7</th><th>Total</th></tr>
+  <tr><td>Out of</td><td>15</td><td>10</td><td>10</td><td>15</td><td>15</td><td>10</td><td>25</td><td>100</td></tr>
+  <tr><td>Given</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+
+<!-- ============ FULL CODE ============ -->
+<h2 id="full-code">Appendix · Complete Form1.cs</h2>
+<p>Use this only to check your work. Your control names must match the tables, and each handler must be connected by double-clicking.</p>
+<div class="codewrap"><div class="cap">Form1.cs: complete</div><pre><code class="cs">using System;
+using System.Windows.Forms;
+
+namespace CNSLab
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        // ---------- Exercise 1: Data → Information ----------
+        private void btnProcess_Click(object sender, EventArgs e)
+        {
+            int m1 = int.Parse(txtM1.Text);
+            int m2 = int.Parse(txtM2.Text);
+            int m3 = int.Parse(txtM3.Text);
+            int m4 = int.Parse(txtM4.Text);
+            int m5 = int.Parse(txtM5.Text);
+
+            int total = m1 + m2 + m3 + m4 + m5;
+            double average = total / 5.0;
+
+            string grade;
+            if (average &gt;= 75) grade = "A";
+            else if (average &gt;= 65) grade = "B";
+            else if (average &gt;= 50) grade = "C";
+            else if (average &gt;= 35) grade = "S";
+            else grade = "F";
+
+            lblTotal.Text = "Total: " + total;
+            lblAverage.Text = "Average: " + average.ToString("0.00");
+            lblGrade.Text = "Grade: " + grade;
+        }
+
+        // ---------- Exercise 2: Generations ----------
+        private void cmbGen_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbGen.SelectedIndex == 0)
+            {
+                lblTech.Text = "Technology: Vacuum tubes";
+                lblPeriod.Text = "Period: 1940 – 1956";
+                lblExample.Text = "Examples: ENIAC, UNIVAC";
+            }
+            else if (cmbGen.SelectedIndex == 1)
+            {
+                lblTech.Text = "Technology: Transistors";
+                lblPeriod.Text = "Period: 1956 – 1963";
+                lblExample.Text = "Examples: IBM 1401, IBM 7094";
+            }
+            else if (cmbGen.SelectedIndex == 2)
+            {
+                lblTech.Text = "Technology: Integrated Circuits (IC)";
+                lblPeriod.Text = "Period: 1964 – 1971";
+                lblExample.Text = "Examples: IBM System/360";
+            }
+            else if (cmbGen.SelectedIndex == 3)
+            {
+                lblTech.Text = "Technology: Microprocessors (VLSI)";
+                lblPeriod.Text = "Period: 1971 – present";
+                lblExample.Text = "Examples: IBM PC, Apple Macintosh";
+            }
+            else if (cmbGen.SelectedIndex == 4)
+            {
+                lblTech.Text = "Technology: Artificial Intelligence (ULSI)";
+                lblPeriod.Text = "Period: Present and beyond";
+                lblExample.Text = "Examples: AI assistants, robots";
+            }
+        }
+
+        // ---------- Exercise 3: Storage units ----------
+        private void btnUnits_Click(object sender, EventArgs e)
+        {
+            double bytes = double.Parse(txtBytes.Text);
+
+            lblBits.Text    = "Bits: "    + (bytes * 8);
+            lblNibbles.Text = "Nibbles: " + (bytes * 2);
+            lblKB.Text = "KB: " + (bytes / 1024).ToString("0.########");
+            lblMB.Text = "MB: " + (bytes / (1024 * 1024)).ToString("0.########");
+            lblGB.Text = "GB: " + (bytes / (1024 * 1024 * 1024)).ToString("0.########");
+        }
+
+        // ---------- Exercise 4: Number systems ----------
+        private void btnConvert_Click(object sender, EventArgs e)
+        {
+            int number = int.Parse(txtDecimal.Text);
+
+            lblBinary.Text = "Binary: " + Convert.ToString(number, 2);
+            lblOctal.Text  = "Octal: "  + Convert.ToString(number, 8);
+            lblHex.Text    = "Hexadecimal: " + Convert.ToString(number, 16).ToUpper();
+        }
+
+        private void btnToDecimal_Click(object sender, EventArgs e)
+        {
+            int fromBase = int.Parse(cmbBase.Text);
+            int value = Convert.ToInt32(txtValue.Text, fromBase);
+
+            lblDecimal.Text = "Decimal: " + value;
+        }
+
+        // ---------- Exercise 5: ASCII ----------
+        private void btnToCode_Click(object sender, EventArgs e)
+        {
+            char c = txtChar.Text[0];
+            int code = c;
+
+            lblCodeDec.Text = "Decimal: " + code;
+            lblCodeBin.Text = "Binary: "  + Convert.ToString(code, 2).PadLeft(8, '0');
+            lblCodeHex.Text = "Hex: "     + code.ToString("X");
+        }
+
+        private void btnToChar_Click(object sender, EventArgs e)
+        {
+            int code = int.Parse(txtCode.Text);
+            lblChar.Text = "Character: " + (char)code;
+        }
+
+        // ---------- Exercise 6: BCD ----------
+        private void btnBcd_Click(object sender, EventArgs e)
+        {
+            string bcd = "";
+
+            foreach (char c in txtBcd.Text)
+            {
+                int digit = c - '0';
+                bcd = bcd + Convert.ToString(digit, 2).PadLeft(4, '0') + " ";
+            }
+
+            lblBcd.Text = "BCD: " + bcd;
+            lblPureBinary.Text = "Pure binary: " + Convert.ToString(int.Parse(txtBcd.Text), 2);
+        }
+
+        // ---------- Exercise 7: Logic gates ----------
+        private void btnGates_Click(object sender, EventArgs e)
+        {
+            bool a = chkA.Checked;
+            bool b = chkB.Checked;
+
+            lblAnd.Text  = "AND   (A · B)    = " + Convert.ToInt32(a &amp;&amp; b);
+            lblOr.Text   = "OR    (A + B)    = " + Convert.ToInt32(a || b);
+            lblNot.Text  = "NOT   (A')       = " + Convert.ToInt32(!a);
+            lblNand.Text = "NAND  ((A · B)') = " + Convert.ToInt32(!(a &amp;&amp; b));
+            lblNor.Text  = "NOR   ((A + B)') = " + Convert.ToInt32(!(a || b));
+            lblXor.Text  = "XOR   (A ⊕ B)    = " + Convert.ToInt32(a ^ b);
+            lblXnor.Text = "XNOR  ((A ⊕ B)') = " + Convert.ToInt32(!(a ^ b));
+
+            lblDeMorgan1.Text = "(A · B)' = " + Convert.ToInt32(!(a &amp;&amp; b))
+                              + "     A' + B' = " + Convert.ToInt32(!a || !b);
+            lblDeMorgan2.Text = "(A + B)' = " + Convert.ToInt32(!(a || b))
+                              + "     A' · B' = " + Convert.ToInt32(!a &amp;&amp; !b);
+        }
+    }
+}</code></pre></div>
+
+<footer>HNDIT1032 Computer and Network Systems · Practical Lab 01 · SLIATE ATI Sammanthurai</footer>
+</main>
+
+<script>
+(function(){
+  // Lightweight C# highlighter
+  var KW = /^(using|namespace|public|private|partial|class|void|int|long|string|bool|char|if|else|return|foreach|in|while|switch|case|default|new|const|object|true|false|null|continue|out)$/;
+  var TYPES = /^(Form|EventArgs|MessageBox|MessageBoxButtons|MessageBoxIcon|Convert|Color|Math|DataGridViewRow)$/;
+  var re = /(\/\/[^\n]*)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)')|([A-Za-z_][A-Za-z0-9_]*)|(\d+)/g;
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  document.querySelectorAll('pre code.cs').forEach(function(el){
+    var src = el.textContent, out = '', last = 0, m;
+    re.lastIndex = 0;
+    while ((m = re.exec(src))){
+      out += esc(src.slice(last, m.index));
+      var t = m[0];
+      if (m[1]) out += '<span class="c">'+esc(t)+'</span>';
+      else if (m[2]) out += '<span class="s">'+esc(t)+'</span>';
+      else if (m[3]) out += KW.test(t) ? '<span class="k">'+t+'</span>' : (TYPES.test(t) ? '<span class="t">'+t+'</span>' : t);
+      else out += '<span class="n">'+t+'</span>';
+      last = re.lastIndex;
+    }
+    out += esc(src.slice(last));
+    el.innerHTML = out;
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.codewrap').forEach(function(w){
+    var pre = w.querySelector('pre'); if(!pre) return;
+    var b = document.createElement('button'); b.className='copy'; b.type='button'; b.textContent='Copy';
+    if (!w.querySelector('.cap')) b.style.top='8px';
+    b.addEventListener('click', function(){
+      var text = pre.innerText;
+      function done(ok){ b.textContent = ok ? 'Copied ✓' : 'Select & Ctrl+C'; setTimeout(function(){ b.textContent='Copy'; }, 1600); }
+      try {
+        navigator.clipboard.writeText(text).then(function(){done(true);}, function(){ fallback(); });
+      } catch(e){ fallback(); }
+      function fallback(){
+        try { var r=document.createRange(); r.selectNodeContents(pre); var s=getSelection(); s.removeAllRanges(); s.addRange(r); done(false); } catch(e){ done(false); }
+      }
+    });
+    w.appendChild(b);
+  });
+
+  // Remember progress ticks (this browser only)
+  document.querySelectorAll('.progress input[data-k]').forEach(function(cb){
+    var key = 'hndit1032-lab01s-' + cb.dataset.k;
+    try { cb.checked = localStorage.getItem(key) === '1'; } catch(e){}
+    cb.addEventListener('change', function(){ try { localStorage.setItem(key, cb.checked ? '1' : '0'); } catch(e){} });
+  });
+})();
+</script>
+</body>
+</html>
